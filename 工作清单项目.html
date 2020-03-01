@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./bootstrap-4.4.1-dist/css/bootstrap.css">
+    <script src="https://cdn.bootcss.com/vue/2.6.11/vue.js"></script>
+    <style>
+        .finish{
+            color:red;
+        }
+
+        .normal{
+            /* color:#000; */
+            color:#000;
+        }
+
+        br{
+            height: 100px;
+        }
+
+        #app{
+            margin:0 auto;
+            width:90%;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">       
+        <!-- 绑定回车事件 -->
+        <input type="text" v-model="val">
+        <button  @mouseup.left = "addItem" >添加事项</button>
+
+        <table class="table worker">
+            <thead>
+                <h2 style="text-align: center;">地下城合格恶魔每日事项清单</h2>
+                <h3>未完成</h3>  
+                <tr>
+                    <th scope="col">序号</th>
+                    <th scope="col">事件</th>
+                    <th scope="col">完成</th>
+                    <th scope="col">删除</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item,index) in Items" v-if="!item.isFinish">
+                    <th scope="row">{{index + 1}}</th>
+                    <td>{{item.title}}</td>
+                    <td :class="!item.isFinish ? 'normal':'finish'" @click="change(item)">✓</td>
+                    <td @click="del(index)">删除</td>
+                </tr>
+            </tbody>
+        </table>
+        <br>
+        <table  class="table worker">
+            <thead>
+                <h3>已完成</h3>  
+                <tr>
+                    <th scope="col">序号</th>
+                    <th scope="col">事件</th>
+                    <th scope="col">完成</th>
+                    <th scope="col">删除</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item,index) in Items" v-if="item.isFinish">
+                  <th scope="row">{{index + 1}}</th>
+                  <td>{{item.title}}</td>
+                  <td :class="!item.isFinish ? 'normal':'finish'" @click="change(item)">✓</td>
+                  <td @click="del(index)">删除</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="bootstrap-4.4.1-dist/js/bootstrap.js"></script>
+    <script>
+        //利用闭包可以实现内部变量私有化
+        const ctro = (function(){
+            return {
+                addItem(todoLists){
+                    //通过json形式把对象转换成字符串
+                    localStorage.setItem('todoLists', JSON.stringify(todoLists))
+                },
+                getItem(){
+                    //通过json形式把字符串转变成对象
+                    return JSON.parse(localStorage.getItem('todoLists'))
+                },
+                getItemLength(){
+                    return JSON.parse(localStorage.getItem('todoLists')).length
+                }
+            }
+        })()
+        var vm = new Vue({
+            el: '#app',
+            data:{
+                val:'',
+                Items:ctro.getItem() || [],
+                ccc:''
+            },
+            methods:{
+                addItem(){
+                    var item = {
+                        title: this.val,
+                        isFinish:false
+                    }
+                    this.Items.push(item)
+                    ctro.addItem(this.Items)
+                    this.val = ""
+                    this.ccc = ctro.getItemLength()
+                },
+                change(item){
+                    item.isFinish = !item.isFinish,
+                    ctro.addItem(this.Items)
+                },
+                del(index){
+                    this.Items.splice(index, 1)
+                    ctro.addItem(this.Items)
+                    this.ccc = ctro.getItemLength()
+                }
+            }
+        })
+    </script>
+</body>
+</html>
